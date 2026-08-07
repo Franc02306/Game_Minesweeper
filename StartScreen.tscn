@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://bx4mejd7ix6fr"]
+
+[ext_resource type="Script" uid="uid://cbof8jwxvyct3" path="res://StartScreen.cs" id="1_s4vtk"]
+
+[node name="StartScreen" type="Control" unique_id=1639250614]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_s4vtk")
+
+[node name="Title" type="Label" parent="." unique_id=870901000]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+rotation = -0.00047343524
+theme_override_font_sizes/font_size = 48
+text = "BUSCA MINAS 2D"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ContinueLabel" type="Label" parent="." unique_id=1487045999]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 70.0
+offset_bottom = 70.0
+grow_horizontal = 2
+grow_vertical = 2
+rotation = -0.0011371269
+theme_override_font_sizes/font_size = 20
+text = "PRESIONA CUALQUIER TECLA PARA CONTINUAR"
+horizontal_alignment = 1
+vertical_alignment = 1

@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://c1yb6ymelbv1g"]
+
+[ext_resource type="Script" uid="uid://dohq2woo3g0in" path="res://Game.cs" id="1_wbfu4"]
+
+[node name="Game" type="Control" unique_id=1302258369]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_wbfu4")
+
+[node name="BoardCenter" type="CenterContainer" parent="." unique_id=1881923871]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GameContainer" type="VBoxContainer" parent="BoardCenter" unique_id=1718841475]
+layout_mode = 2
+
+[node name="GameInfoLabel" type="Label" parent="BoardCenter/GameContainer" unique_id=1439046043]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "CARGANDO PARTIDA..."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Board" type="GridContainer" parent="BoardCenter/GameContainer" unique_id=1348320922]
+layout_mode = 2

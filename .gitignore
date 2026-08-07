@@ -1,0 +1,36 @@
+# Godot
+.godot/
+
+# .NET / C#
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userprefs
+
+# Rider / JetBrains
+.idea/
+
+# VS Code
+.vscode/
+
+# Build / exports
+build/
+dist/
+exports/
+
+# Android generated project
+/android/
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
