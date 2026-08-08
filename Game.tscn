@@ -21,11 +21,20 @@ grow_vertical = 2
 
 [node name="GameContainer" type="VBoxContainer" parent="BoardCenter" unique_id=1718841475]
 layout_mode = 2
+theme_override_constants/separation = 8
 
 [node name="GameInfoLabel" type="Label" parent="BoardCenter/GameContainer" unique_id=1439046043]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "CARGANDO PARTIDA..."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ResultOptionsLabel" type="Label" parent="BoardCenter/GameContainer" unique_id=812535180]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "R - REINICIAR
+ESC - VOLVER AL MENÚ"
 horizontal_alignment = 1
 vertical_alignment = 1
 

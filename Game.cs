@@ -5,6 +5,7 @@ public partial class Game : Control
 {
 	private GridContainer _board;
 	private Label _infoLabel;
+	private Label _resultOptionsLabel;
 
 	private Button[,] _buttons;
 	private bool[,] _mines;
@@ -26,6 +27,12 @@ public partial class Game : Control
             "BoardCenter/GameContainer/GameInfoLabel"
 		);
 
+		_resultOptionsLabel = GetNode<Label>(
+            "BoardCenter/GameContainer/ResultOptionsLabel"
+		);
+
+		_resultOptionsLabel.Text = "";
+
 		_board = GetNode<GridContainer>(
             "BoardCenter/GameContainer/Board"
 		);
@@ -45,9 +52,32 @@ public partial class Game : Control
 		CreateBoard();
 	}
 
+	// =====================================================
+	// TAMAÑO DE LAS CASILLAS
+	// =====================================================
+	private float GetCellSize()
+	{
+		if (_columns <= 9)
+			return 32;
+
+		if (_columns <= 16)
+			return 28;
+
+		return 24;
+	}
+
+	// =====================================================
+	// CREAR TABLERO
+	// =====================================================
 	private void CreateBoard()
 	{
 		_board.Columns = _columns;
+
+		// Separación uniforme entre todas las casillas
+		_board.AddThemeConstantOverride("h_separation", 2);
+		_board.AddThemeConstantOverride("v_separation", 2);
+
+		float cellSize = GetCellSize();
 
 		for (int row = 0; row < _rows; row++)
 		{
@@ -55,7 +85,18 @@ public partial class Game : Control
 			{
 				Button cell = new Button();
 
-				cell.CustomMinimumSize = new Vector2(32, 32);
+				// El texto jamás debe agrandar la casilla
+				cell.ClipText = true;
+
+				// Tamaño completamente fijo
+				Vector2 fixedSize = new Vector2(cellSize, cellSize);
+
+				cell.CustomMinimumSize = fixedSize;
+				cell.CustomMaximumSize = fixedSize;
+
+				// Evita que el foco del teclado modifique visualmente
+				// la casilla mientras jugamos con mouse
+				cell.FocusMode = Control.FocusModeEnum.None;
 
 				int currentRow = row;
 				int currentColumn = column;
@@ -83,6 +124,9 @@ public partial class Game : Control
 		}
 	}
 
+	// =====================================================
+	// COLOCAR MINAS
+	// =====================================================
 	private void PlaceMines(int safeRow, int safeColumn)
 	{
 		Random random = new Random();
@@ -109,6 +153,9 @@ public partial class Game : Control
 		_minesPlaced = true;
 	}
 
+	// =====================================================
+	// CALCULAR MINAS ALREDEDOR
+	// =====================================================
 	private void CalculateAdjacentMines()
 	{
 		for (int row = 0; row < _rows; row++)
@@ -122,7 +169,9 @@ public partial class Game : Control
 
 				for (int rowOffset = -1; rowOffset <= 1; rowOffset++)
 				{
-					for (int columnOffset = -1; columnOffset <= 1; columnOffset++)
+					for (int columnOffset = -1;
+						 columnOffset <= 1;
+						 columnOffset++)
 					{
 						if (rowOffset == 0 && columnOffset == 0)
 							continue;
@@ -130,8 +179,12 @@ public partial class Game : Control
 						int neighborRow = row + rowOffset;
 						int neighborColumn = column + columnOffset;
 
-						if (!IsInsideBoard(neighborRow, neighborColumn))
+						if (!IsInsideBoard(
+								neighborRow,
+								neighborColumn))
+						{
 							continue;
+						}
 
 						if (_mines[neighborRow, neighborColumn])
 							count++;
@@ -143,15 +196,19 @@ public partial class Game : Control
 		}
 	}
 
+	// =====================================================
+	// REVELAR CASILLA
+	// =====================================================
 	private void RevealCell(int row, int column)
 	{
 		if (_gameOver)
 			return;
 
-		// No se puede descubrir una casilla con bandera
+		// No abrir casillas con bandera
 		if (_flagged[row, column])
 			return;
 
+		// Las minas se generan en el primer clic
 		if (!_minesPlaced)
 		{
 			PlaceMines(row, column);
@@ -161,11 +218,15 @@ public partial class Game : Control
 		if (_revealed[row, column])
 			return;
 
+		// Pisó una mina
 		if (_mines[row, column])
 		{
 			_buttons[row, column].Text = "X";
 
 			_infoLabel.Text = "¡PERDISTE!";
+
+			_resultOptionsLabel.Text =
+				"R - REINICIAR\nESC - VOLVER AL MENÚ";
 
 			_gameOver = true;
 
@@ -175,10 +236,13 @@ public partial class Game : Control
 		}
 
 		RevealSafeCell(row, column);
-		
+
 		CheckVictory();
 	}
 
+	// =====================================================
+	// REVELAR CASILLA SEGURA
+	// =====================================================
 	private void RevealSafeCell(int row, int column)
 	{
 		if (!IsInsideBoard(row, column))
@@ -190,7 +254,6 @@ public partial class Game : Control
 		if (_mines[row, column])
 			return;
 
-		// No abrir automáticamente una casilla marcada
 		if (_flagged[row, column])
 			return;
 
@@ -202,18 +265,22 @@ public partial class Game : Control
 
 		int adjacent = _adjacentMines[row, column];
 
+		// Tiene minas alrededor
 		if (adjacent > 0)
 		{
 			cell.Text = adjacent.ToString();
 			return;
 		}
 
+		// Casilla vacía
 		cell.Text = "";
 
-		// Si tiene 0 minas alrededor, abrir vecinos
+		// Abrir automáticamente todos los vecinos
 		for (int rowOffset = -1; rowOffset <= 1; rowOffset++)
 		{
-			for (int columnOffset = -1; columnOffset <= 1; columnOffset++)
+			for (int columnOffset = -1;
+				 columnOffset <= 1;
+				 columnOffset++)
 			{
 				if (rowOffset == 0 && columnOffset == 0)
 					continue;
@@ -221,17 +288,23 @@ public partial class Game : Control
 				int neighborRow = row + rowOffset;
 				int neighborColumn = column + columnOffset;
 
-				RevealSafeCell(neighborRow, neighborColumn);
+				RevealSafeCell(
+					neighborRow,
+					neighborColumn
+				);
 			}
 		}
 	}
 
+	// =====================================================
+	// BANDERAS
+	// =====================================================
 	private void ToggleFlag(int row, int column)
 	{
 		if (_gameOver)
 			return;
 
-		// No se puede marcar una casilla ya descubierta
+		// No marcar una casilla ya descubierta
 		if (_revealed[row, column])
 			return;
 
@@ -241,6 +314,7 @@ public partial class Game : Control
 		{
 			// Quitar bandera
 			_flagged[row, column] = false;
+
 			_flagsPlaced--;
 
 			cell.Text = "";
@@ -252,6 +326,7 @@ public partial class Game : Control
 				return;
 
 			_flagged[row, column] = true;
+
 			_flagsPlaced++;
 
 			cell.Text = "⚑";
@@ -260,20 +335,29 @@ public partial class Game : Control
 		UpdateHeader();
 	}
 
+	// =====================================================
+	// ENCABEZADO
+	// =====================================================
 	private void UpdateHeader()
 	{
-		int remainingMines = _mineCount - _flagsPlaced;
+		int remainingMines =
+			_mineCount - _flagsPlaced;
 
 		_infoLabel.Text =
 			$"{_columns} x {_rows} | " +
 			$"MINAS: {remainingMines}";
 	}
 
+	// =====================================================
+	// MOSTRAR MINAS AL PERDER
+	// =====================================================
 	private void RevealAllMines()
 	{
 		for (int row = 0; row < _rows; row++)
 		{
-			for (int column = 0; column < _columns; column++)
+			for (int column = 0;
+				 column < _columns;
+				 column++)
 			{
 				if (_mines[row, column])
 				{
@@ -285,6 +369,9 @@ public partial class Game : Control
 		}
 	}
 
+	// =====================================================
+	// VALIDAR POSICIÓN
+	// =====================================================
 	private bool IsInsideBoard(int row, int column)
 	{
 		return row >= 0 &&
@@ -292,35 +379,75 @@ public partial class Game : Control
 			   column >= 0 &&
 			   column < _columns;
 	}
-	
+
+	// =====================================================
+	// VICTORIA
+	// =====================================================
 	private void CheckVictory()
-{
-	for (int row = 0; row < _rows; row++)
 	{
-		for (int column = 0; column < _columns; column++)
+		for (int row = 0; row < _rows; row++)
 		{
-			if (!_mines[row, column] && !_revealed[row, column])
+			for (int column = 0;
+				 column < _columns;
+				 column++)
 			{
-				return;
+				// Si queda una casilla segura por descubrir,
+				// todavía no ganó
+				if (!_mines[row, column] &&
+					!_revealed[row, column])
+				{
+					return;
+				}
+			}
+		}
+
+		_gameOver = true;
+
+		_infoLabel.Text = "¡GANASTE!";
+
+		_resultOptionsLabel.Text =
+			"R - JUGAR DE NUEVO\nESC - VOLVER AL MENÚ";
+
+		for (int row = 0; row < _rows; row++)
+		{
+			for (int column = 0;
+				 column < _columns;
+				 column++)
+			{
+				if (_mines[row, column])
+				{
+					_buttons[row, column].Text = "⚑";
+				}
+
+				_buttons[row, column].Disabled = true;
 			}
 		}
 	}
 
-	_gameOver = true;
-
-	_infoLabel.Text = "¡GANASTE!";
-
-	for (int row = 0; row < _rows; row++)
+	// =====================================================
+	// TECLADO
+	// =====================================================
+	public override void _Input(InputEvent @event)
 	{
-		for (int column = 0; column < _columns; column++)
-		{
-			if (_mines[row, column])
-			{
-				_buttons[row, column].Text = "⚑";
-			}
+		if (@event is not InputEventKey keyEvent)
+			return;
 
-			_buttons[row, column].Disabled = true;
+		if (!keyEvent.Pressed || keyEvent.Echo)
+			return;
+
+		// R = reiniciar
+		if (keyEvent.Keycode == Key.R)
+		{
+			GetTree().ReloadCurrentScene();
+			return;
+		}
+
+		// ESC = volver al menú
+		if (keyEvent.Keycode == Key.Escape)
+		{
+			GetTree().ChangeSceneToFile(
+                "res://MainMenu.tscn"
+			);
 		}
 	}
-}
 }
