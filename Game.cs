@@ -20,6 +20,9 @@ public partial class Game : Control
 
 	private bool _minesPlaced = false;
 	private bool _gameOver = false;
+	
+	private double _elapsedTime = 0;
+	private bool _timerRunning = false;
 
 	public override void _Ready()
 	{
@@ -46,10 +49,31 @@ public partial class Game : Control
 		_revealed = new bool[_rows, _columns];
 		_flagged = new bool[_rows, _columns];
 		_adjacentMines = new int[_rows, _columns];
+		_timerRunning = true;
 
 		UpdateHeader();
 
 		CreateBoard();
+	}
+	
+	public override void _Process(double delta)
+	{
+		if (!_timerRunning)
+			return;
+
+		_elapsedTime += delta;
+
+		UpdateHeader();
+	}
+	
+	private string GetFormattedTime()
+	{
+		int totalSeconds = (int)_elapsedTime;
+
+		int minutes = totalSeconds / 60;
+		int seconds = totalSeconds % 60;
+
+		return $"{minutes:00}:{seconds:00}";
 	}
 
 	// =====================================================
@@ -226,9 +250,12 @@ public partial class Game : Control
 			_infoLabel.Text = "¡PERDISTE!";
 
 			_resultOptionsLabel.Text =
-				"R - REINICIAR\nESC - VOLVER AL MENÚ";
+				$"TIEMPO: {GetFormattedTime()}\n\n" +
+				"R - REINICIAR\n" +
+				"ESC - VOLVER AL MENÚ";
 
 			_gameOver = true;
+			_timerRunning = false;
 
 			RevealAllMines();
 
@@ -345,7 +372,8 @@ public partial class Game : Control
 
 		_infoLabel.Text =
 			$"{_columns} x {_rows} | " +
-			$"MINAS: {remainingMines}";
+			$"MINAS: {remainingMines} | " +
+			$"TIEMPO: {GetFormattedTime()}";
 	}
 
 	// =====================================================
@@ -391,8 +419,7 @@ public partial class Game : Control
 				 column < _columns;
 				 column++)
 			{
-				// Si queda una casilla segura por descubrir,
-				// todavía no ganó
+				// Si queda una casilla segura por descubrir, todavía no ganó
 				if (!_mines[row, column] &&
 					!_revealed[row, column])
 				{
@@ -402,11 +429,13 @@ public partial class Game : Control
 		}
 
 		_gameOver = true;
-
+		_timerRunning = false;
 		_infoLabel.Text = "¡GANASTE!";
 
 		_resultOptionsLabel.Text =
-			"R - JUGAR DE NUEVO\nESC - VOLVER AL MENÚ";
+			$"TIEMPO: {GetFormattedTime()}\n\n" +
+			"R - JUGAR DE NUEVO\n" +
+			"ESC - VOLVER AL MENÚ";
 
 		for (int row = 0; row < _rows; row++)
 		{
