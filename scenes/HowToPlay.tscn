@@ -2,6 +2,23 @@
 
 [ext_resource type="Script" uid="uid://oh3t8ebc37xw" path="res://scripts/HowToPlay.cs" id="1_iayqv"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_iayqv"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.2159017, 0.21590173, 0.2159017, 0.6)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+corner_detail = 5
+
 [node name="HowToPlay" type="Control" unique_id=262400148]
 layout_mode = 3
 anchors_preset = 15
@@ -28,30 +45,41 @@ theme_override_font_sizes/font_size = 36
 text = "CÓMO JUGAR"
 horizontal_alignment = 1
 
-[node name="InstructionsLabel" type="Label" parent="Content" unique_id=419262331]
+[node name="InstructionsPanel" type="PanelContainer" parent="Content" unique_id=1116728080]
+custom_minimum_size = Vector2(900, 400)
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "OBJETIVO
+theme_override_styles/panel = SubResource("StyleBoxFlat_iayqv")
+
+[node name="MarginContainer" type="MarginContainer" parent="Content/InstructionsPanel" unique_id=1520613548]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 22
+
+[node name="InstructionsLabel" type="Label" parent="Content/InstructionsPanel/MarginContainer" unique_id=419262331]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "OBJETIVO:
 Descubre todas las casillas que no contienen minas.
 
-CONTROLES
+CONTROLES:
+1. CLIC IZQUIERDO
+	Descubrir una casilla.
 
-CLIC IZQUIERDO
-Descubrir una casilla
+2. CLIC DERECHO
+	Colocar o quitar una bandera.
 
-CLIC DERECHO
-Colocar o quitar una bandera
+3. TECLA 'R'
+	Reiniciar la partida.
 
-R
-Reiniciar la partida
+4. TECLA 'ESC'
+	Volver al menú.
 
-ESC
-Volver al menú
 
 ¿QUÉ SIGNIFICAN LOS NÚMEROS?
-Cada número indica cuántas minas existen
-en las 8 casillas que lo rodean."
-horizontal_alignment = 1
+Cada número indica cuántas minas existen en las 8 casillas que lo rodean."
+autowrap_mode = 3
 
 [node name="BackLabel" type="Label" parent="Content" unique_id=1521788799]
 layout_mode = 2
