@@ -6,7 +6,7 @@ public partial class StartScreen : Control
 	{
 		if (@event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo)
 		{
-			GetTree().ChangeSceneToFile("res://MainMenu.tscn");
+			GetTree().ChangeSceneToFile("res://scenes//MainMenu.tscn");
 		}
 	}
 }

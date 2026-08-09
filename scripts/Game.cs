@@ -719,7 +719,7 @@ public partial class Game : Control
 		if (keyEvent.Keycode == Key.Escape)
 		{
 			GetTree().ChangeSceneToFile(
-                "res://MainMenu.tscn"
+                "res://scenes//MainMenu.tscn"
 			);
 		}
 	}

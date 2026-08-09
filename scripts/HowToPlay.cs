@@ -12,7 +12,7 @@ public partial class HowToPlay : Control
 
 		if (keyEvent.Keycode == Key.Escape)
 		{
-			GetTree().ChangeSceneToFile("res://MainMenu.tscn");
+			GetTree().ChangeSceneToFile("res://scenes//MainMenu.tscn");
 		}
 	}
 }

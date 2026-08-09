@@ -28,12 +28,12 @@ public partial class MainMenu : Control
 		GameSettings.Columns = columns;
 		GameSettings.Mines = mines;
 
-		GetTree().ChangeSceneToFile("res://Game.tscn");
+		GetTree().ChangeSceneToFile("res://scenes//Game.tscn");
 	}
 	
 	private void OpenHowToPlay()
 	{
-		GetTree().ChangeSceneToFile("res://HowToPlay.tscn");
+		GetTree().ChangeSceneToFile("res://scenes//HowToPlay.tscn");
 	}
 	
 	private void ExitGame()

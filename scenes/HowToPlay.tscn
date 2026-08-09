@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cyav6m126gyvg"]
 
-[ext_resource type="Script" uid="uid://oh3t8ebc37xw" path="res://HowToPlay.cs" id="1_r7xa0"]
+[ext_resource type="Script" uid="uid://oh3t8ebc37xw" path="res://scripts/HowToPlay.cs" id="1_iayqv"]
 
 [node name="HowToPlay" type="Control" unique_id=262400148]
 layout_mode = 3
@@ -9,7 +9,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_r7xa0")
+script = ExtResource("1_iayqv")
 
 [node name="Content" type="VBoxContainer" parent="." unique_id=1923338613]
 layout_mode = 1
