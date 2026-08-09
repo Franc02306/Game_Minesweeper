@@ -1,0 +1,60 @@
+[gd_scene format=3 uid="uid://cyav6m126gyvg"]
+
+[ext_resource type="Script" uid="uid://oh3t8ebc37xw" path="res://HowToPlay.cs" id="1_r7xa0"]
+
+[node name="HowToPlay" type="Control" unique_id=262400148]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_r7xa0")
+
+[node name="Content" type="VBoxContainer" parent="." unique_id=1923338613]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="Content" unique_id=1469968843]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "CÓMO JUGAR"
+horizontal_alignment = 1
+
+[node name="InstructionsLabel" type="Label" parent="Content" unique_id=419262331]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "OBJETIVO
+Descubre todas las casillas que no contienen minas.
+
+CONTROLES
+
+CLIC IZQUIERDO
+Descubrir una casilla
+
+CLIC DERECHO
+Colocar o quitar una bandera
+
+R
+Reiniciar la partida
+
+ESC
+Volver al menú
+
+¿QUÉ SIGNIFICAN LOS NÚMEROS?
+Cada número indica cuántas minas existen
+en las 8 casillas que lo rodean."
+horizontal_alignment = 1
+
+[node name="BackLabel" type="Label" parent="Content" unique_id=1521788799]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "PRESIONA ESC PARA VOLVER"
+horizontal_alignment = 1

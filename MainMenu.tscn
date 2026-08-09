@@ -11,45 +11,49 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_i26rj")
 
-[node name="TitleLabel" type="Label" parent="." unique_id=1678297398]
+[node name="MenuCenter" type="CenterContainer" parent="." unique_id=1287845828]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -140.0
-offset_bottom = -140.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="DifficultyContainer" type="VBoxContainer" parent="MenuCenter" unique_id=1592436868]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="MenuCenter/DifficultyContainer" unique_id=1678297398]
+layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "SELECCIONA EL TAMAÑO DEL MAPA"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="DifficultyContainer" type="VBoxContainer" parent="." unique_id=1592436868]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="SmallButton" type="Button" parent="DifficultyContainer" unique_id=1590319086]
+[node name="SmallButton" type="Button" parent="MenuCenter/DifficultyContainer" unique_id=1590319086]
+custom_minimum_size = Vector2(260, 70)
 layout_mode = 2
 text = "PEQUEÑO
-9 x 9"
+9 x 9 · 10 MINAS"
 
-[node name="MediumButton" type="Button" parent="DifficultyContainer" unique_id=1734882381]
+[node name="MediumButton" type="Button" parent="MenuCenter/DifficultyContainer" unique_id=1734882381]
+custom_minimum_size = Vector2(260, 70)
 layout_mode = 2
 text = "MEDIANO
-16 x 16"
+16 x 16 · 40 MINAS"
 
-[node name="LargeButton" type="Button" parent="DifficultyContainer" unique_id=175291519]
+[node name="LargeButton" type="Button" parent="MenuCenter/DifficultyContainer" unique_id=175291519]
+custom_minimum_size = Vector2(260, 70)
 layout_mode = 2
 text = "GRANDE
-30 x 16"
+30 x 16 · 99 MINAS"
+
+[node name="HowToPlayButton" type="Button" parent="MenuCenter/DifficultyContainer" unique_id=1736767783]
+custom_minimum_size = Vector2(260, 70)
+layout_mode = 2
+text = "CÓMO JUGAR"
+
+[node name="ExitButton" type="Button" parent="MenuCenter/DifficultyContainer" unique_id=495528604]
+custom_minimum_size = Vector2(260, 70)
+layout_mode = 2
+text = "SALIR"
