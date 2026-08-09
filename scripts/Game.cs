@@ -6,6 +6,12 @@ public partial class Game : Control
 	private GridContainer _board;
 	private Label _infoLabel;
 	private Label _resultOptionsLabel;
+	
+	// Audios
+	private AudioStreamPlayer _numberSound;
+	private AudioStreamPlayer _flagSound;
+	private AudioStreamPlayer _mineSound;
+	private AudioStreamPlayer _winSound;
 
 	private Button[,] _buttons;
 	private bool[,] _mines;
@@ -26,19 +32,15 @@ public partial class Game : Control
 
 	public override void _Ready()
 	{
-		_infoLabel = GetNode<Label>(
-            "BoardCenter/GameContainer/GameInfoLabel"
-		);
+		_infoLabel = GetNode<Label>("BoardCenter/GameContainer/GameInfoLabel");
 
 		_resultOptionsLabel = GetNode<Label>(
-            "BoardCenter/GameContainer/ResultOptionsLabel"
+			"BoardCenter/GameContainer/ResultOptionsLabel"
 		);
 
 		_resultOptionsLabel.Text = "";
 
-		_board = GetNode<GridContainer>(
-            "BoardCenter/GameContainer/Board"
-		);
+		_board = GetNode<GridContainer>("BoardCenter/GameContainer/Board");
 
 		_rows = GameSettings.Rows;
 		_columns = GameSettings.Columns;
@@ -49,6 +51,8 @@ public partial class Game : Control
 		_revealed = new bool[_rows, _columns];
 		_flagged = new bool[_rows, _columns];
 		_adjacentMines = new int[_rows, _columns];
+		
+		SetupAudio();
 
 		_timerRunning = true;
 
@@ -121,24 +125,19 @@ public partial class Game : Control
 
 				cell.ClipText = true;
 
-				Vector2 fixedSize =
-					new Vector2(cellSize, cellSize);
+				Vector2 fixedSize = new Vector2(cellSize, cellSize);
 
 				cell.CustomMinimumSize = fixedSize;
 				cell.CustomMaximumSize = fixedSize;
 
 				cell.FocusMode = Control.FocusModeEnum.None;
 
-				cell.AddThemeFontSizeOverride(
-					"font_size",
-					GetCellFontSize()
-				);
+				cell.AddThemeFontSizeOverride("font_size", GetCellFontSize());
 
 				int currentRow = row;
 				int currentColumn = column;
 
-				cell.Pressed += () =>
-					RevealCell(currentRow, currentColumn);
+				cell.Pressed += () => RevealCell(currentRow, currentColumn);
 
 				cell.GuiInput += (@event) =>
 				{
@@ -146,10 +145,7 @@ public partial class Game : Control
 						mouseEvent.ButtonIndex == MouseButton.Right &&
 						mouseEvent.Pressed)
 					{
-						ToggleFlag(
-							currentRow,
-							currentColumn
-						);
+						ToggleFlag(currentRow,currentColumn);
 
 						cell.AcceptEvent();
 					}
@@ -176,8 +172,7 @@ public partial class Game : Control
 			int row = random.Next(_rows);
 			int column = random.Next(_columns);
 
-			if (row == safeRow &&
-				column == safeColumn)
+			if (row == safeRow && column == safeColumn)
 			{
 				continue;
 			}
@@ -200,53 +195,39 @@ public partial class Game : Control
 	{
 		for (int row = 0; row < _rows; row++)
 		{
-			for (int column = 0;
-				 column < _columns;
-				 column++)
+			for (int column = 0; column < _columns; column++)
 			{
 				if (_mines[row, column])
 					continue;
 
 				int count = 0;
 
-				for (int rowOffset = -1;
-					 rowOffset <= 1;
-					 rowOffset++)
+				for (int rowOffset = -1; rowOffset <= 1; rowOffset++)
 				{
-					for (int columnOffset = -1;
-						 columnOffset <= 1;
-						 columnOffset++)
+					for (int columnOffset = -1; columnOffset <= 1; columnOffset++)
 					{
-						if (rowOffset == 0 &&
-							columnOffset == 0)
+						if (rowOffset == 0 && columnOffset == 0)
 						{
 							continue;
 						}
 
-						int neighborRow =
-							row + rowOffset;
+						int neighborRow = row + rowOffset;
 
-						int neighborColumn =
-							column + columnOffset;
+						int neighborColumn = column + columnOffset;
 
-						if (!IsInsideBoard(
-								neighborRow,
-								neighborColumn))
+						if (!IsInsideBoard(neighborRow, neighborColumn))
 						{
 							continue;
 						}
 
-						if (_mines[
-							neighborRow,
-							neighborColumn])
+						if (_mines[neighborRow, neighborColumn])
 						{
 							count++;
 						}
 					}
 				}
 
-				_adjacentMines[row, column] =
-					count;
+				_adjacentMines[row, column] = count;
 			}
 		}
 	}
@@ -275,13 +256,13 @@ public partial class Game : Control
 		{
 			_gameOver = true;
 			_timerRunning = false;
+			
+			_mineSound.Play();
 
 			_infoLabel.Text = "¡PERDISTE!";
 
-			_resultOptionsLabel.Text =
-				$"TIEMPO: {GetFormattedTime()}\n\n" +
-				"R - REINICIAR\n" +
-				"ESC - VOLVER AL MENÚ";
+			_resultOptionsLabel.Text = $"TIEMPO: {GetFormattedTime()}\n\n" +
+				"R - REINICIAR\n" + "ESC - VOLVER AL MENÚ";
 
 			RevealAllMines();
 
@@ -291,14 +272,17 @@ public partial class Game : Control
 		RevealSafeCell(row, column);
 
 		CheckVictory();
+		
+		if (!_gameOver)
+		{
+			_numberSound.Play();
+		}
 	}
 
 	// =====================================================
 	// REVELAR CASILLA SEGURA
 	// =====================================================
-	private void RevealSafeCell(
-		int row,
-		int column)
+	private void RevealSafeCell(int row, int column)
 	{
 		if (!IsInsideBoard(row, column))
 			return;
@@ -314,53 +298,37 @@ public partial class Game : Control
 
 		_revealed[row, column] = true;
 
-		Button cell =
-			_buttons[row, column];
+		Button cell = _buttons[row, column];
 
-		int adjacent =
-			_adjacentMines[row, column];
+		int adjacent = _adjacentMines[row, column];
 
-		StyleRevealedCell(
-			cell,
-			adjacent
-		);
+		StyleRevealedCell(cell, adjacent);
 
 		cell.Disabled = true;
 
 		if (adjacent > 0)
 		{
-			cell.Text =
-				adjacent.ToString();
+			cell.Text = adjacent.ToString();
 
 			return;
 		}
 
 		cell.Text = "";
-
-		for (int rowOffset = -1;
-			 rowOffset <= 1;
-			 rowOffset++)
+ 
+		for (int rowOffset = -1; rowOffset <= 1; rowOffset++)
 		{
-			for (int columnOffset = -1;
-				 columnOffset <= 1;
-				 columnOffset++)
+			for (int columnOffset = -1; columnOffset <= 1; columnOffset++)
 			{
-				if (rowOffset == 0 &&
-					columnOffset == 0)
+				if (rowOffset == 0 && columnOffset == 0)
 				{
 					continue;
 				}
 
-				int neighborRow =
-					row + rowOffset;
+				int neighborRow = row + rowOffset;
 
-				int neighborColumn =
-					column + columnOffset;
+				int neighborColumn = column + columnOffset;
 
-				RevealSafeCell(
-					neighborRow,
-					neighborColumn
-				);
+				RevealSafeCell(neighborRow, neighborColumn);
 			}
 		}
 	}
@@ -368,40 +336,24 @@ public partial class Game : Control
 	// =====================================================
 	// ESTILO CASILLA REVELADA
 	// =====================================================
-	private void StyleRevealedCell(
-		Button cell,
-		int adjacent)
+	private void StyleRevealedCell(Button cell, int adjacent)
 	{
-		StyleBoxFlat style =
-			new StyleBoxFlat();
+		StyleBoxFlat style = new StyleBoxFlat();
 
-		style.BgColor =
-			new Color(
-				0.38f,
-				0.38f,
-				0.38f,
-				1.0f
-			);
+		style.BgColor = new Color(0.38f, 0.38f, 0.38f, 1.0f);
 
 		style.CornerRadiusTopLeft = 2;
 		style.CornerRadiusTopRight = 2;
 		style.CornerRadiusBottomLeft = 2;
 		style.CornerRadiusBottomRight = 2;
 
-		cell.AddThemeStyleboxOverride(
-			"disabled",
-			style
-		);
+		cell.AddThemeStyleboxOverride("disabled", style);
 
 		if (adjacent > 0)
 		{
-			Color numberColor =
-				GetNumberColor(adjacent);
+			Color numberColor = GetNumberColor(adjacent);
 
-			cell.AddThemeColorOverride(
-				"font_disabled_color",
-				numberColor
-			);
+			cell.AddThemeColorOverride("font_disabled_color", numberColor);
 		}
 	}
 
@@ -412,53 +364,21 @@ public partial class Game : Control
 	{
 		return number switch
 		{
-			1 => new Color(
-				0.35f,
-				0.65f,
-				1.00f
-			),
+			1 => new Color(0.35f, 0.65f, 1.00f),
 
-			2 => new Color(
-				0.35f,
-				0.85f,
-				0.45f
-			),
+			2 => new Color(0.35f, 0.85f, 0.45f),
 
-			3 => new Color(
-				1.00f,
-				0.35f,
-				0.35f
-			),
+			3 => new Color(1.00f, 0.35f, 0.35f),
 
-			4 => new Color(
-				0.75f,
-				0.45f,
-				1.00f
-			),
+			4 => new Color(0.75f, 0.45f, 1.00f),
 
-			5 => new Color(
-				1.00f,
-				0.60f,
-				0.25f
-			),
+			5 => new Color(1.00f, 0.60f, 0.25f),
 
-			6 => new Color(
-				0.30f,
-				0.90f,
-				0.90f
-			),
+			6 => new Color(0.30f, 0.90f, 0.90f),
 
-			7 => new Color(
-				0.95f,
-				0.95f,
-				0.95f
-			),
+			7 => new Color(0.95f, 0.95f, 0.95f),
 
-			8 => new Color(
-				0.70f,
-				0.70f,
-				0.70f
-			),
+			8 => new Color(0.70f, 0.70f, 0.70f),
 
 			_ => Colors.White
 		};
@@ -467,9 +387,7 @@ public partial class Game : Control
 	// =====================================================
 	// BANDERAS
 	// =====================================================
-	private void ToggleFlag(
-		int row,
-		int column)
+	private void ToggleFlag(int row, int column)
 	{
 		if (_gameOver)
 			return;
@@ -477,14 +395,11 @@ public partial class Game : Control
 		if (_revealed[row, column])
 			return;
 
-		Button cell =
-			_buttons[row, column];
+		Button cell = _buttons[row, column];
 
 		if (_flagged[row, column])
 		{
-			_flagged[row, column] =
-				false;
-
+			_flagged[row, column] = false;
 			_flagsPlaced--;
 
 			cell.Text = "";
@@ -493,15 +408,12 @@ public partial class Game : Control
 		}
 		else
 		{
-			if (_flagsPlaced >=
-				_mineCount)
+			if (_flagsPlaced >= _mineCount)
 			{
 				return;
 			}
 
-			_flagged[row, column] =
-				true;
-
+			_flagged[row, column] = true;
 			_flagsPlaced++;
 
 			cell.Text = "⚑";
@@ -509,47 +421,29 @@ public partial class Game : Control
 			StyleFlagCell(cell);
 		}
 
+		_flagSound.Play();
+		
 		UpdateHeader();
 	}
 
 	private void StyleFlagCell(Button cell)
 	{
-		Color flagColor =
-			new Color(
-				1.0f,
-				0.70f,
-				0.20f
-			);
+		Color flagColor = new Color(1.0f, 0.70f, 0.20f);
 
-		cell.AddThemeColorOverride(
-			"font_color",
-			flagColor
-		);
+		cell.AddThemeColorOverride("font_color", flagColor);
 
-		cell.AddThemeColorOverride(
-			"font_hover_color",
-			flagColor
-		);
+		cell.AddThemeColorOverride("font_hover_color", flagColor);
 
-		cell.AddThemeColorOverride(
-			"font_pressed_color",
-			flagColor
-		);
+		cell.AddThemeColorOverride("font_pressed_color", flagColor);
 	}
 
 	private void RemoveFlagStyle(Button cell)
 	{
-		cell.RemoveThemeColorOverride(
-            "font_color"
-		);
+		cell.RemoveThemeColorOverride("font_color");
 
-		cell.RemoveThemeColorOverride(
-            "font_hover_color"
-		);
+		cell.RemoveThemeColorOverride("font_hover_color");
 
-		cell.RemoveThemeColorOverride(
-            "font_pressed_color"
-		);
+		cell.RemoveThemeColorOverride("font_pressed_color");
 	}
 
 	// =====================================================
@@ -557,13 +451,8 @@ public partial class Game : Control
 	// =====================================================
 	private void UpdateHeader()
 	{
-		int remainingMines =
-			_mineCount - _flagsPlaced;
-
-		_infoLabel.Text =
-			$"{_columns} x {_rows} | " +
-			$"MINAS: {remainingMines} | " +
-			$"TIEMPO: {GetFormattedTime()}";
+		int remainingMines = _mineCount - _flagsPlaced;
+		_infoLabel.Text = $"{_columns} x {_rows} | " + $"MINAS: {remainingMines} | " + $"TIEMPO: {GetFormattedTime()}";
 	}
 
 	// =====================================================
@@ -571,21 +460,15 @@ public partial class Game : Control
 	// =====================================================
 	private void RevealAllMines()
 	{
-		for (int row = 0;
-			 row < _rows;
-			 row++)
+		for (int row = 0; row < _rows; row++)
 		{
-			for (int column = 0;
-				 column < _columns;
-				 column++)
+			for (int column = 0; column < _columns; column++)
 			{
-				Button cell =
-					_buttons[row, column];
+				Button cell = _buttons[row, column];
 
 				if (_mines[row, column])
 				{
 					cell.Text = "●";
-
 					StyleMineCell(cell);
 				}
 
@@ -599,44 +482,26 @@ public partial class Game : Control
 	// =====================================================
 	private void StyleMineCell(Button cell)
 	{
-		StyleBoxFlat style =
-			new StyleBoxFlat();
+		StyleBoxFlat style = new StyleBoxFlat();
 
-		style.BgColor =
-			new Color(
-				0.60f,
-				0.16f,
-				0.16f,
-				1.0f
-			);
+		style.BgColor = new Color(0.60f, 0.16f, 0.16f, 1.0f);
 
 		style.CornerRadiusTopLeft = 2;
 		style.CornerRadiusTopRight = 2;
 		style.CornerRadiusBottomLeft = 2;
 		style.CornerRadiusBottomRight = 2;
 
-		cell.AddThemeStyleboxOverride(
-			"disabled",
-			style
-		);
+		cell.AddThemeStyleboxOverride("disabled", style);
 
-		cell.AddThemeColorOverride(
-			"font_disabled_color",
-			Colors.White
-		);
+		cell.AddThemeColorOverride("font_disabled_color", Colors.White);
 	}
 
 	// =====================================================
 	// VALIDAR POSICIÓN
 	// =====================================================
-	private bool IsInsideBoard(
-		int row,
-		int column)
+	private bool IsInsideBoard(int row, int column)
 	{
-		return row >= 0 &&
-			   row < _rows &&
-			   column >= 0 &&
-			   column < _columns;
+		return row >= 0 && row < _rows && column >= 0 && column < _columns;
 	}
 
 	// =====================================================
@@ -644,16 +509,11 @@ public partial class Game : Control
 	// =====================================================
 	private void CheckVictory()
 	{
-		for (int row = 0;
-			 row < _rows;
-			 row++)
+		for (int row = 0; row < _rows; row++)
 		{
-			for (int column = 0;
-				 column < _columns;
-				 column++)
+			for (int column = 0; column < _columns; column++)
 			{
-				if (!_mines[row, column] &&
-					!_revealed[row, column])
+				if (!_mines[row, column] && !_revealed[row, column])
 				{
 					return;
 				}
@@ -662,25 +522,19 @@ public partial class Game : Control
 
 		_gameOver = true;
 		_timerRunning = false;
+		
+		_winSound.Play();
 
-		_infoLabel.Text =
-			"¡GANASTE!";
+		_infoLabel.Text = "¡GANASTE!";
 
-		_resultOptionsLabel.Text =
-			$"TIEMPO: {GetFormattedTime()}\n\n" +
-			"R - JUGAR DE NUEVO\n" +
-			"ESC - VOLVER AL MENÚ";
+		_resultOptionsLabel.Text = $"TIEMPO: {GetFormattedTime()}\n\n" +
+			"R - JUGAR DE NUEVO\n" + "ESC - VOLVER AL MENÚ";
 
-		for (int row = 0;
-			 row < _rows;
-			 row++)
+		for (int row = 0; row < _rows; row++)
 		{
-			for (int column = 0;
-				 column < _columns;
-				 column++)
+			for (int column = 0; column < _columns; column++)
 			{
-				Button cell =
-					_buttons[row, column];
+				Button cell = _buttons[row, column];
 
 				if (_mines[row, column])
 				{
@@ -697,14 +551,12 @@ public partial class Game : Control
 	// =====================================================
 	// TECLADO
 	// =====================================================
-	public override void _Input(
-		InputEvent @event)
+	public override void _Input(InputEvent @event)
 	{
 		if (@event is not InputEventKey keyEvent)
 			return;
 
-		if (!keyEvent.Pressed ||
-			keyEvent.Echo)
+		if (!keyEvent.Pressed || keyEvent.Echo)
 		{
 			return;
 		}
@@ -718,9 +570,27 @@ public partial class Game : Control
 
 		if (keyEvent.Keycode == Key.Escape)
 		{
-			GetTree().ChangeSceneToFile(
-                "res://scenes//MainMenu.tscn"
-			);
+			GetTree().ChangeSceneToFile("res://scenes//MainMenu.tscn");
 		}
+	}
+	
+	// =====================================================
+	// CARGAR AUDIOS
+	// =====================================================
+	private void SetupAudio()
+	{
+		_numberSound = CreateAudioPlayer("res://audio/number_sound.mp3");
+		_flagSound = CreateAudioPlayer("res://audio/flag_sound.mp3");
+		_mineSound = CreateAudioPlayer("res://audio/mine_sound.mp3");
+		_winSound = CreateAudioPlayer("res://audio/win_sound.mp3");
+	}
+
+	private AudioStreamPlayer CreateAudioPlayer(string path)
+	{
+		AudioStreamPlayer player = new AudioStreamPlayer();
+		player.Stream = GD.Load<AudioStream>(path);
+		AddChild(player);
+
+		return player;
 	}
 }
